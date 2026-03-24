@@ -4,9 +4,10 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAMESPACE="catalog"
 DEPLOYMENT="catalog"
-BACKUP_FILE="~/fault-injection/catalog-original.yaml"
+BACKUP_FILE="$SCRIPT_DIR/catalog-original.yaml"
 
 echo "=== Catalog Service Fault Injection (Network + CPU Stress) ==="
 echo "Target: $DEPLOYMENT in namespace $NAMESPACE"
@@ -174,4 +175,4 @@ echo "Check latency + stress injector logs:"
 echo "  kubectl logs -n $NAMESPACE -l app.kubernetes.io/name=catalog -c latency-injector --tail=10"
 echo ""
 echo "Rollback:"
-echo "  ./~/fault-injection/rollback-catalog.sh"
+echo "  ./rollback-catalog.sh"

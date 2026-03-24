@@ -163,18 +163,31 @@ else
 fi
 
 # =============================================================================
-# Step 4: Initialize Terraform
+# Step 4: Update Helm Repository Cache
 # =============================================================================
-print_header "Step 4: Initializing Terraform"
+print_header "Step 4: Updating Helm Repository Cache"
+
+# The Terraform Helm provider uses the local Helm repo cache.
+# Stale or missing repo indexes cause "no cached repo found" errors during apply.
+if helm repo update > /dev/null 2>&1; then
+    print_success "Helm repo cache updated"
+else
+    print_warning "Helm repo update failed or no repos configured - continuing"
+fi
+
+# =============================================================================
+# Step 5: Initialize Terraform
+# =============================================================================
+print_header "Step 5: Initializing Terraform"
 
 cd "$TERRAFORM_DIR"
 terraform init -input=false
 print_success "Terraform initialized"
 
 # =============================================================================
-# Step 5: Plan Deployment
+# Step 6: Plan Deployment
 # =============================================================================
-print_header "Step 5: Planning Deployment"
+print_header "Step 6: Planning Deployment"
 
 terraform plan \
     -var="cluster_name=$CLUSTER_NAME" \
@@ -185,9 +198,9 @@ terraform plan \
 print_success "Terraform plan created"
 
 # =============================================================================
-# Step 6: Apply Terraform
+# Step 7: Apply Terraform
 # =============================================================================
-print_header "Step 6: Deploying Infrastructure (this takes ~25-30 minutes)"
+print_header "Step 7: Deploying Infrastructure (this takes ~25-30 minutes)"
 
 START_TIME=$(date +%s)
 

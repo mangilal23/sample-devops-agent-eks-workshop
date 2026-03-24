@@ -4,9 +4,10 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAMESPACE="carts"
 DEPLOYMENT="carts"
-BACKUP_FILE="~/fault-injection/carts-original.yaml"
+BACKUP_FILE="$SCRIPT_DIR/carts-original.yaml"
 
 echo "=== Cart Memory Leak Injection ==="
 echo "Target: $DEPLOYMENT in namespace $NAMESPACE"
@@ -164,4 +165,4 @@ echo "Check logs:"
 echo "  kubectl logs -n $NAMESPACE -l app.kubernetes.io/name=carts -c memory-leaker --tail=20"
 echo ""
 echo "Rollback:"
-echo "  ./~/fault-injection/rollback-cart-memory-leak.sh"
+echo "  ./rollback-cart-memory-leak.sh"

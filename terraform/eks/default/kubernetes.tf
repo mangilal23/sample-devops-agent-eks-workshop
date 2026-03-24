@@ -209,13 +209,14 @@ resource "null_resource" "ingress_class" {
   ]
 
   provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
+    interpreter = ["bash", "-c"]
     environment = {
       KUBECONFIG = base64encode(local.kubeconfig)
     }
 
     command = <<-EOT
-      cat <<EOF | kubectl apply --kubeconfig <(echo $KUBECONFIG | base64 -d) -f -
+      TMPKC=$(mktemp) && echo $KUBECONFIG | base64 -d > $TMPKC
+      kubectl apply --kubeconfig $TMPKC -f - <<EOF
 apiVersion: eks.amazonaws.com/v1
 kind: IngressClassParams
 metadata:
@@ -236,6 +237,7 @@ spec:
     kind: IngressClassParams
     name: alb
 EOF
+      rm -f $TMPKC
     EOT
   }
 }
@@ -302,13 +304,15 @@ resource "null_resource" "restart_pods" {
   }
 
   provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
+    interpreter = ["bash", "-c"]
     environment = {
       KUBECONFIG = base64encode(local.kubeconfig)
     }
 
     command = <<-EOT
-      kubectl delete pod -A -l app.kubernetes.io/owner=retail-store-sample --kubeconfig <(echo $KUBECONFIG | base64 -d)
+      TMPKC=$(mktemp) && echo $KUBECONFIG | base64 -d > $TMPKC
+      kubectl delete pod -A -l app.kubernetes.io/owner=retail-store-sample --kubeconfig $TMPKC
+      rm -f $TMPKC
     EOT
   }
 }
